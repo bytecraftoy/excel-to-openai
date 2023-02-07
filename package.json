@@ -1,7 +1,4 @@
 {
-  "dependencies": {
-    "xlsx": "^0.18.5"
-  },
   "name": "excelproject-bytecraft",
   "version": "1.0.0",
   "main": "main.js",
@@ -10,5 +7,9 @@
   },
   "author": "Marcus Nieminen",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "xlsx": "^0.18.5"
+  }
 }
