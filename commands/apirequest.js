@@ -33,27 +33,49 @@ module.exports = {
                     'Accept': 'application/json'
                 }
             };
-            https.request(options, (res) => {
-                let resdata = "";
-                res.on('data', (rd) => {
-                    resdata += rd;
+            try {
+                https.request(options, (res) => {
+                    let resdata = "";
+                    let err = false;
+                    res.on('data', (rd) => {
+                        resdata += rd;
+                    })
+                    res.on('end', () => {
+                        if (res.statusCode >= 400) {
+                            err = true;
+                            dataout[loadval1] = `error: ${res.statusCode}`;
+                            client.common.error(`error code ${res.statusCode}`)
+                        }
+                        if (!err) {
+                            parsedData = JSON.parse(resdata);
+                            stringedData = JSON.stringify(parsedData.result);
+                            dataout[loadval1] = stringedData;
+                        }
+                        apic();
+                    })
+                    res.on('error', (e) => {
+                        client.common.error(`api request error: ${e}`);
+                        dataout[loadval1] = `error: ${e}`;
+                        apic();
+                    })
                 })
-                res.on('end', () => {
-                    parsedData = JSON.parse(resdata);
-                    stringedData = JSON.stringify(parsedData.result);
-                    dataout[loadval1] = stringedData;
-                    loadval1 += 1;
-                    client.common.log(`completed ${loadval1} of ${ammount}`);
-                    if (loadval1 == ammount) {
-                        callback(dataout);
-                    } else {
-                        loadval3++; loadval4++;
-                        if (loadval3 == hval[loadval2]) { loadval3 = 0; loadval2++; }
-                        apir();
-                    }
-                })
-            })
-                .write(data);
+                    .write(data);
+            } catch (e) {
+                client.common.error(`api request error: ${e}`);
+                dataout[loadval1] = `error: ${e}`;
+                apic();
+            }
+        }
+        function apic() {
+            loadval1++;
+            client.common.log(`completed ${loadval1} of ${ammount}`);
+            if (loadval1 == ammount) {
+                callback(dataout);
+            } else {
+                loadval3++; loadval4++;
+                if (loadval3 == hval[loadval2]) { loadval3 = 0; loadval2++; }
+                apir();
+            }
         }
     }
 }
